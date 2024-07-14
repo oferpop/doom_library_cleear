@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library - Manage Loans</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="home.html">Home</a></li>
+            <li><a href="books.html">Books</a></li>
+            <li><a href="customers.html">Customers</a></li>
+            <li><a href="loans.html">Loans</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <h1>Manage Loans</h1>
+        <button onclick="openAddLoanModal()">Add a New Loan</button>
+        <button onclick="openGetLoansModal()">Get Loans</button>
+        <button onclick="openGetLoanByIdModal()">Get Loan by ID</button>
+        <button onclick="openGetLoanByEmailModal()">Get Loan by Email</button>
+    </div>
+
+    <!-- Add Loan Modal -->
+    <div id="addLoanModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddLoanModal()">&times;</span>
+            <h2>Add a New Loan</h2>
+            <form id="add-loan-form">
+                <h3>Add by ID</h3>
+                <div class="form-group">
+                    <label for="cust_id">Customer ID:</label>
+                    <input type="number" id="cust_id" name="cust_id">
+                </div>
+                <div class="form-group">
+                    <label for="book_id">Book ID:</label>
+                    <input type="number" id="book_id" name="book_id">
+                </div>
+                <h3>Add by Book Name and Customer Email</h3>
+                <div class="form-group">
+                    <label for="customer_email">Customer Email:</label>
+                    <input type="email" id="customer_email" name="customer_email">
+                </div>
+                <div class="form-group">
+                    <label for="book_name">Book Name:</label>
+                    <input type="text" id="book_name" name="book_name">
+                </div>
+                <button type="submit">Add Loan</button>
+            </form>
+        </div>
+    </div>
+
+
+
+    <!-- Get Loans Modal -->
+    <div id="getLoansModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeGetLoansModal()">&times;</span>
+            <h2>Loans List</h2>
+            <table id="loans-table">
+                <thead>
+                    <tr>
+                        <th>Loan ID</th>
+                        <th>Customer ID</th>
+                        <th>Customer Name</th>
+                        <th>Customer Email</th>
+                        <th>Book Name</th>
+                        <th>Book ID</th>
+                        <th>Loan Date</th>
+                        <th>Return Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Get Loan by ID Modal -->
+    <div id="getLoanByIdModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeGetLoanByIdModal()">&times;</span>
+            <h2>Get Loan by ID</h2>
+            <form id="get-loan-by-id-form">
+                <div class="form-group">
+                    <label for="loan_id">Loan ID:</label>
+                    <input type="number" id="loan_id" name="loan_id" required>
+                </div>
+                <button type="submit">Get Loan</button>
+            </form>
+            <table id="loan-by-id-table">
+                <thead>
+                    <tr>
+                        <th>Loan ID</th>
+                        <th>Customer ID</th>
+                        <th>Customer Name</th>
+                        <th>Customer Email</th>
+                        <th>Book Name</th>
+                        <th>Book ID</th>
+                        <th>Loan Date</th>
+                        <th>Return Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Get Loan by Email Modal -->
+    <div id="getLoanByEmailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeGetLoanByEmailModal()">&times;</span>
+            <h2>Get Loan by Email</h2>
+            <form id="get-loan-by-email-form">
+                <div class="form-group">
+                    <label for="customer_email">Customer Email:</label>
+                    <input type="email" id="customer_email" name="customer_email" required>
+                </div>
+                <button type="submit">Get Loan</button>
+            </form>
+            <table id="loan-by-email-table">
+                <thead>
+                    <tr>
+                        <th>Loan ID</th>
+                        <th>Customer ID</th>
+                        <th>Customer Name</th>
+                        <th>Customer Email</th>
+                        <th>Book Name</th>
+                        <th>Book ID</th>
+                        <th>Loan Date</th>
+                        <th>Return Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const SERVER = 'http://127.0.0.1:5000';
+
+
+        document.getElementById('add-loan-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const loanData = {};
+            const custId = document.getElementById('cust_id').value;
+            const bookId = document.getElementById('book_id').value;
+            const customerEmail = document.getElementById('customer_email').value;
+            const bookName = document.getElementById('book_name').value;
+
+            if (custId && bookId) {
+                loanData.cust_id = custId;
+                loanData.book_id = bookId;
+            } else if (customerEmail && bookName) {
+                loanData.customer_email = customerEmail;
+                loanData.book_name = bookName;
+            } else {
+                alert('Please fill either Customer ID and Book ID, or Customer Email and Book Name.');
+                return;
+            }
+
+            const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+
+            axios.post(`${SERVER}/add_loan`, loanData, {
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            })
+                .then(function (response) {
+                    alert('Loan added successfully!');
+                    closeAddLoanModal(); // Close modal after adding loan
+                    getLoans(); // Refresh loans list
+                })
+                .catch(function (error) {
+                    alert('Error adding loan: ' + (error.response ? error.response.data.error : error.message));
+                });
+        });
+
+        document.getElementById('get-loan-by-id-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const loanId = document.getElementById('loan_id').value;
+
+            const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+
+            axios.get(`${SERVER}/loans/${loanId}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            })
+                .then(function (response) {
+                    const loanTable = document.getElementById('loan-by-id-table').getElementsByTagName('tbody')[0];
+                    loanTable.innerHTML = '';
+                    const loan = response.data;
+                    const row = loanTable.insertRow();
+                    row.insertCell(0).innerText = loan.id; // Adjust the property names accordingly
+                    row.insertCell(1).innerText = loan.cust_id;
+                    row.insertCell(2).innerText = loan.customer ? loan.customer.name : 'N/A';
+                    row.insertCell(3).innerText = loan.customer ? loan.customer.mail : 'N/A';
+                    row.insertCell(4).innerText = loan.book ? loan.book.name : 'N/A';
+                    row.insertCell(5).innerText = loan.book_id;
+                    row.insertCell(6).innerText = loan.loan_date;
+                    row.insertCell(7).innerText = loan.return_date;
+                    row.insertCell(8).innerHTML = `
+                        <button onclick="returnBook(${loan.book_id})">Return</button>
+                    `;
+                })
+                .catch(function (error) {
+                    alert('Error fetching loan: ' + (error.response ? error.response.data.error : error.message));
+                });
+        });
+
+        function returnBook(bookId) {
+            const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+
+            axios.put(`${SERVER}/loans/${bookId}/return`, {}, {
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            })
+                .then(function (response) {
+                    alert('Book returned successfully!');
+                    document.getElementById('get-loan-by-id-form').submit(); // Refresh the loan details
+                })
+                .catch(function (error) {
+                    alert('Error returning book: ' + (error.response ? error.response.data.error : error.message));
+                });
+        }
+
+        document.getElementById('get-loan-by-email-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const customerEmail = document.getElementById('customer_email').value;
+
+            const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+
+            axios.get(`${SERVER}/loans/customer/${customerEmail}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            })
+                .then(function (response) {
+                    const loanTable = document.getElementById('loan-by-email-table').getElementsByTagName('tbody')[0];
+                    loanTable.innerHTML = '';
+                    response.data.forEach(function (loan) {
+                        const row = loanTable.insertRow();
+                        row.insertCell(0).innerText = loan.loan_id;
+                        row.insertCell(1).innerText = loan.customer_id;
+                        row.insertCell(2).innerText = loan.customer_name;
+                        row.insertCell(3).innerText = loan.customer_email;
+                        row.insertCell(4).innerText = loan.book_name;
+                        row.insertCell(5).innerText = loan.book_id;
+                        row.insertCell(6).innerText = loan.loan_date;
+                        row.insertCell(7).innerText = loan.return_date;
+                        row.insertCell(8).innerHTML = `<button onclick="returnBook(${loan.book_id})">Return</button>`;
+                    });
+                })
+                .catch(function (error) {
+                    alert('Error fetching loans: ' + (error.response ? error.response.data.error : error.message));
+                });
+        });
+
+
+
+        function getLoans() {
+            const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+
+            axios.get(`${SERVER}/loans`, {
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            })
+                .then(function (response) {
+                    const loansTable = document.getElementById('loans-table').getElementsByTagName('tbody')[0];
+                    loansTable.innerHTML = '';
+                    response.data.forEach(function (loan) {
+                        const row = loansTable.insertRow();
+                        row.insertCell(0).innerText = loan.loan_id;
+                        row.insertCell(1).innerText = loan.customer_id;
+                        row.insertCell(2).innerText = loan.customer_name;
+                        row.insertCell(3).innerText = loan.customer_email;
+                        row.insertCell(4).innerText = loan.book_name;
+                        row.insertCell(5).innerText = loan.book_id;
+                        row.insertCell(6).innerText = loan.loan_date;
+                        row.insertCell(7).innerText = loan.return_date;
+                        row.insertCell(8).innerHTML = `
+                            <button onclick="returnBook(${loan.book_id})">Return</button>
+                        `;
+                        if (new Date(loan.return_date) > new Date()) {
+                            row.style.backgroundColor = 'lightcoral';
+                            row.cells[8].innerHTML += `<span> (Unavailable until ${loan.return_date})</span>`;
+                        }
+                    });
+                })
+                .catch(function (error) {
+                    alert('Error fetching loans: ' + error.message);
+                });
+        }
+
+        // function returnBook(bookId) {
+        //     const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+
+        //     axios.put(`${SERVER}/loans/${bookId}/return`, {}, {
+        //         headers: {
+        //             'Authorization': 'Bearer ' + accessToken
+        //         }
+        //     })
+        //         .then(response => {
+        //             alert('Book returned successfully');
+        //             getLoans(); // Refresh loans list without closing the modal
+        //         })
+        //         .catch(error => {
+        //             alert('Error returning book: ' + (error.response ? error.response.data.error : error.message));
+        //         });
+        // }
+        function rentBook(bookId) {
+    const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+    if (!accessToken) {
+        alert('Please login to rent a book');
+        return;
+    }
+
+    axios.post(`${SERVER}/add_loan`, {
+        book_id: bookId
+    }, {
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(function (response) {
+        alert('Book rented successfully');
+        window.location.href = 'home.html'; // Change to home.html
+    })
+    .catch(function (error) {
+        if (error.response) {
+            alert('Error renting book: ' + error.response.data.error);
+        } else {
+            alert('Error renting book: ' + error.message);
+        }
+    });
+}
+
+
+        function openAddLoanModal() {
+            document.getElementById('addLoanModal').style.display = 'block';
+        }
+
+        function closeAddLoanModal() {
+            document.getElementById('addLoanModal').style.display = 'none';
+        }
+
+        function openGetLoansModal() {
+            document.getElementById('getLoansModal').style.display = 'block';
+            getLoans(); // Fetch loans when opening the modal
+        }
+
+        function closeGetLoansModal() {
+            document.getElementById('getLoansModal').style.display = 'none';
+        }
+
+        function openGetLoanByIdModal() {
+            document.getElementById('getLoanByIdModal').style.display = 'block';
+        }
+
+        function closeGetLoanByIdModal() {
+            document.getElementById('getLoanByIdModal').style.display = 'none';
+        }
+
+        function openGetLoanByEmailModal() {
+            document.getElementById('getLoanByEmailModal').style.display = 'block';
+        }
+
+        function closeGetLoanByEmailModal() {
+            document.getElementById('getLoanByEmailModal').style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+            if (!accessToken) {
+                alert('Please login as admin to manage loans.');
+                window.location.href = 'home.html';
+            } else {
+                axios.get(`${SERVER}/protected`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                })
+                    .then(function (response) {
+                        // User is authorized
+                    })
+                    .catch(function (error) {
+                        alert('Access denied. Admins only.');
+                        window.location.href = 'home.html';
+                    });
+            }
+
+            // Apply nav-red class to Loans link on page load
+            setNavRed('loans');
+        });
+
+        function setNavRed(activePage) {
+            const navLinks = document.querySelectorAll('nav ul li a');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href').includes(activePage)) {
+                    link.classList.add('nav-red');
+                } else {
+                    link.classList.remove('nav-red');
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

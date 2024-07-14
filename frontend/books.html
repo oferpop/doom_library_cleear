@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library - Manage Books</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="home.html">Home</a></li>
+            <li><a href="books.html">Books</a></li>
+            <li><a href="customers.html">Customers</a></li>
+            <li><a href="loans.html">Loans</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <h1>Manage Books</h1>
+        <button onclick="openAddBookModal()">Add New Book</button>
+        <button onclick="openGetBooksModal()">Get Books</button>
+        <button onclick="openGetBooksByIdModal()">Get Book by ID</button>
+        <button onclick="openGetBooksByNameModal()">Get Books by Name</button>
+
+        <div id="addBookModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeAddBookModal()">&times;</span>
+                <h2>Add a New Book</h2>
+                <form id="add-book-form" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="name">Book Name:</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="author">Author:</label>
+                        <input type="text" id="author" name="author" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="year_published">Year Published:</label>
+                        <input type="number" id="year_published" name="year_published" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="type">Type:</label>
+                        <select id="type" name="type" required>
+                            <option value="1">Type 1</option>
+                            <option value="2">Type 2</option>
+                            <option value="3">Type 3</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="img">Upload Image:</label>
+                        <input type="file" id="img" name="img">
+                    </div>
+                    <button type="submit">Add Book</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="getBooksModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeGetBooksModal()">&times;</span>
+                <h2>Books List</h2>
+                <table id="books-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Author</th>
+                            <th>Year Published</th>
+                            <th>Type</th>
+                            <th>Image</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="getBooksByIdModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeGetBooksByIdModal()">&times;</span>
+                <button onclick="refreshBooksById()">Refresh</button>
+                <h2>Get Book by ID</h2>
+                <form id="get-book-by-id-form">
+                    <div class="form-group">
+                        <label for="book_id">Book ID:</label>
+                        <input type="number" id="book_id" name="book_id" required>
+                    </div>
+                    <button type="submit">Get Book</button>
+                </form>
+                <table id="book-by-id-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Author</th>
+                            <th>Year Published</th>
+                            <th>Type</th>
+                            <th>Image</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="getBooksByNameModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeGetBooksByNameModal()">&times;</span>
+                <button onclick="refreshBooksByName()">Refresh</button>
+                <h2>Get Books by Name</h2>
+                <form id="get-books-by-name-form">
+                    <div class="form-group">
+                        <label for="book_name">Book Name:</label>
+                        <input type="text" id="book_name" name="book_name" required>
+                    </div>
+                    <button type="submit">Get Books</button>
+                </form>
+                <table id="books-by-name-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Author</th>
+                            <th>Year Published</th>
+                            <th>Type</th>
+                            <th>Image</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="updateBookModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeUpdateBookModal()">&times;</span>
+                <h2>Update Book</h2>
+                <form id="update-book-form">
+                    <div class="form-group">
+                        <label for="update-name">Name:</label>
+                        <input type="text" id="update-name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-author">Author:</label>
+                        <input type="text" id="update-author" name="author" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-year_published">Year Published:</label>
+                        <input type="number" id="update-year_published" name="year_published" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-type">Type:</label>
+                        <select id="update-type" name="type" required>
+                            <option value="1">Type 1</option>
+                            <option value="2">Type 2</option>
+                            <option value="3">Type 3</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-img">Current Image:</label>
+                        <img id="update-img" style="width: 50px; height: 50px;">
+                        <label for="update-img-input">Upload New Image:</label>
+                        <input type="file" id="update-img-input" name="img">
+                    </div>
+                    <button type="submit">Update Book</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const SERVER = 'http://127.0.0.1:5000';
+
+        document.getElementById('add-book-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const formData = new FormData();
+            formData.append('name', document.getElementById('name').value);
+            formData.append('author', document.getElementById('author').value);
+            formData.append('year_published', document.getElementById('year_published').value);
+            formData.append('type', document.getElementById('type').value);
+
+            const imgInput = document.getElementById('img');
+            if (imgInput.files.length > 0) {
+                formData.append('img', imgInput.files[0]);
+            } else {
+                // Append a link to the default image
+                formData.append('img_url', 'static/default.jpg');
+            }
+
+            const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+
+            axios.post(`${SERVER}/add_book`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            })
+                .then(function (response) {
+                    alert('Book added successfully!');
+                    closeAddBookModal();
+                    getBooks();
+                })
+                .catch(function (error) {
+                    alert('Error adding book: ' + (error.response ? error.response.data.error : error.message));
+                });
+        });
+
+
+        document.getElementById('get-book-by-id-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const bookId = document.getElementById('book_id').value;
+
+            const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+
+            axios.get(`${SERVER}/books/${bookId}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            })
+                .then(function (response) {
+                    const booksTable = document.getElementById('book-by-id-table').getElementsByTagName('tbody')[0];
+                    booksTable.innerHTML = '';
+
+                    if (!response.data) {
+                        alert('No book with this ID');
+                    } else {
+                        const book = response.data;
+                        const row = booksTable.insertRow();
+                        row.insertCell(0).innerText = book.id;
+                        row.insertCell(1).innerText = book.name;
+                        row.insertCell(2).innerText = book.author;
+                        row.insertCell(3).innerText = book.year_published;
+                        row.insertCell(4).innerText = book.type;
+                        row.insertCell(5).innerHTML = `<img src="${SERVER}${book.img}" alt="${book.name}" style="width:50px;height:50px;">`;
+                        row.insertCell(6).innerHTML = `
+                <button onclick="openUpdateBookModal(${book.id}, '${book.name}', '${book.author}', ${book.year_published}, ${book.type}, '${book.img}')">Update</button>
+                <button onclick="deleteBook(${book.id})">Delete</button>`;
+                    }
+                })
+                .catch(function (error) {
+                    if (error.response && error.response.status === 404) {
+                        alert('No book with this ID');
+                    } else {
+                        alert('Error fetching book: ' + (error.response ? error.response.data.error : error.message));
+                    }
+                });
+        });
+        document.getElementById('get-books-by-name-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const bookName = document.getElementById('book_name').value;
+
+            const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+
+            axios.get(`${SERVER}/books`, {
+                params: { name: bookName },
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            })
+                .then(function (response) {
+                    const booksTable = document.getElementById('books-by-name-table').getElementsByTagName('tbody')[0];
+                    booksTable.innerHTML = '';
+                    if (response.data.length === 0) {
+                        alert('No book with this name');
+                    } else {
+                        response.data.forEach(function (book) {
+                            const row = booksTable.insertRow();
+                            row.insertCell(0).innerText = book.id;
+                            row.insertCell(1).innerText = book.name;
+                            row.insertCell(2).innerText = book.author;
+                            row.insertCell(3).innerText = book.year_published;
+                            row.insertCell(4).innerText = book.type;
+                            row.insertCell(5).innerHTML = `<img src="${SERVER}${book.img}" alt="${book.name}" style="width:50px;height:50px;">`;
+                            row.insertCell(6).innerHTML = `
+                            <button onclick="openUpdateBookModal(${book.id}, '${book.name}', '${book.author}', ${book.year_published}, ${book.type}, '${book.img}')">Update</button>
+                            <button onclick="deleteBook(${book.id})">Delete</button>
+                        `;
+                        });
+                    }
+                })
+                .catch(function (error) {
+                    alert('Error fetching books: ' + (error.response ? error.response.data.error : error.message));
+                });
+        });
+
+        function getBooks() {
+            const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+
+            axios.get(`${SERVER}/books`, {
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            })
+                .then(function (response) {
+                    const booksTable = document.getElementById('books-table').getElementsByTagName('tbody')[0];
+                    booksTable.innerHTML = '';
+                    response.data.forEach(function (book) {
+                        const row = booksTable.insertRow();
+                        row.insertCell(0).innerText = book.id;
+                        row.insertCell(1).innerText = book.name;
+                        row.insertCell(2).innerText = book.author;
+                        row.insertCell(3).innerText = book.year_published;
+                        row.insertCell(4).innerText = book.type;
+                        row.insertCell(5).innerHTML = `<img src="${SERVER}${book.img}" alt="${book.name}" style="width:50px;height:50px;">`;
+                        row.insertCell(6).innerHTML = `
+                            <button onclick="openUpdateBookModal(${book.id}, '${book.name}', '${book.author}', ${book.year_published}, ${book.type}, '${book.img}')">Update</button>
+                            <button onclick="deleteBook(${book.id})">Delete</button>
+                        `;
+                    });
+                })
+                .catch(function (error) {
+                    alert('Error fetching books: ' + error.message);
+                });
+        }
+
+        function deleteBook(bookId) {
+            const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+
+            axios.delete(`${SERVER}/books/${bookId}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            })
+                .then(response => {
+                    alert('Book deleted successfully');
+                    getBooks();
+                })
+                .catch(error => {
+                    alert('Error deleting book: ' + (error.response ? error.response.data.error : error.message));
+                });
+        }
+
+        function openUpdateBookModal(id, name, author, year_published, type, img) {
+            document.getElementById('update-name').value = name;
+            document.getElementById('update-author').value = author;
+            document.getElementById('update-year_published').value = year_published;
+            document.getElementById('update-type').value = type;
+            document.getElementById('update-img').src = img;
+            document.getElementById('update-book-form').setAttribute('data-id', id);
+            document.getElementById('updateBookModal').style.display = 'block';
+        }
+
+        document.getElementById('update-book-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const bookId = document.getElementById('update-book-form').getAttribute('data-id');
+            const updatedBook = {
+                name: document.getElementById('update-name').value,
+                author: document.getElementById('update-author').value,
+                year_published: document.getElementById('update-year_published').value,
+                type: document.getElementById('update-type').value,
+                img: document.getElementById('update-img').src
+            };
+
+            const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+
+            axios.put(`${SERVER}/books/${bookId}`, updatedBook, {
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            })
+                .then(function (response) {
+                    alert('Book updated successfully!');
+                    closeUpdateBookModal();
+                    getBooks();
+                })
+                .catch(function (error) {
+                    alert('Error updating book: ' + (error.response ? error.response.data.error : error.message));
+                });
+        });
+
+        function refreshBooks() {
+            getBooks();
+        }
+
+        function refreshBooksById() {
+            document.getElementById('book_id').value = '';
+            document.getElementById('book-by-id-table').getElementsByTagName('tbody')[0].innerHTML = '';
+        }
+
+        function refreshBooksByName() {
+            document.getElementById('book_name').value = '';
+            document.getElementById('books-by-name-table').getElementsByTagName('tbody')[0].innerHTML = '';
+        }
+
+        function openAddBookModal() {
+            document.getElementById('addBookModal').style.display = 'block';
+        }
+
+        function closeAddBookModal() {
+            document.getElementById('addBookModal').style.display = 'none';
+        }
+
+        function openGetBooksModal() {
+            document.getElementById('getBooksModal').style.display = 'block';
+            getBooks();
+        }
+
+        function closeGetBooksModal() {
+            document.getElementById('getBooksModal').style.display = 'none';
+        }
+
+        function openGetBooksByIdModal() {
+            document.getElementById('getBooksByIdModal').style.display = 'block';
+            refreshBooksById();
+        }
+
+        function closeGetBooksByIdModal() {
+            document.getElementById('getBooksByIdModal').style.display = 'none';
+        }
+
+        function openGetBooksByNameModal() {
+            document.getElementById('getBooksByNameModal').style.display = 'block';
+            refreshBooksByName();
+        }
+
+        function closeGetBooksByNameModal() {
+            document.getElementById('getBooksByNameModal').style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+            if (!accessToken) {
+                alert('Please login as admin to manage books.');
+                window.location.href = 'index.html';
+            } else {
+                axios.get(`${SERVER}/protected`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                })
+                    .then(function (response) {
+                        // User is authorized
+                    })
+                    .catch(function (error) {
+                        alert('Access denied. Admins only.');
+                        window.location.href = 'index.html';
+                    });
+            }
+
+            // Apply nav-red class to Books link on page load
+            setNavRed('books');
+        });
+
+        function setNavRed(section) {
+            const navLinks = document.querySelectorAll('nav ul li a');
+            navLinks.forEach(link => {
+                link.classList.remove('nav-red');
+                if (link.href.includes(section)) {
+                    link.classList.add('nav-red');
+                }
+            });
+        }
+
+        function closeUpdateBookModal() {
+            document.getElementById('updateBookModal').style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>

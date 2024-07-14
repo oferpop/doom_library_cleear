@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library - Register</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="register-container">
+            <h1>Register</h1>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="mail">Email</label>
+                    <input type="email" id="mail" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <input type="text" id="city" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="age">Age</label>
+                    <input type="number" id="age" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="gender">Gender</label>
+                    <select id="gender" class="form-control">
+                        <option value="">Select</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Register</button>
+                <p id="error-message" class="error-message">Error registering user</p>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const SERVER = 'http://127.0.0.1:5000';
+
+        document.getElementById('register-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const mail = document.getElementById('mail').value;
+            const password = document.getElementById('password').value;
+            const city = document.getElementById('city').value;
+            const age = document.getElementById('age').value;
+            const gender = document.getElementById('gender').value;
+
+            axios.post(`${SERVER}/register`, {
+                username: username,
+                mail: mail,
+                password: password,
+                city: city,
+                age: age,
+                gender: gender
+            })
+                .then(function (response) {
+                    if (response.data.access_token) {
+                        localStorage.setItem('access_token', response.data.access_token);
+                        localStorage.setItem('user_name', mail); // Store user name
+                        alert(response.data.message);
+                        window.location.href = 'home.html'; // Redirect to home page
+                    } else {
+                        document.getElementById('error-message').style.display = 'block';
+                    }
+                })
+                .catch(function (error) {
+                    document.getElementById('error-message').style.display = 'block';
+                    console.error('Error:', error); // Log error for debugging
+                });
+        });
+    </script>
+</body>
+
+</html>

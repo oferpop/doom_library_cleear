@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Customers</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="home.html" id="nav-home">Home</a></li>
+            <li><a href="books.html" id="nav-books">Books</a></li>
+            <li><a href="customers.html" id="nav-customers">Customers</a></li>
+            <li><a href="loans.html" id="nav-loans">Loans</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <h1>Manage Customers</h1>
+        <button onclick="openAddCustomerModal()">Add a New Customer</button>
+        <button onclick="openGetCustomersModal()">Get Customers</button>
+        <button onclick="openGetCustomerByIdModal()">Get Customer by ID</button>
+        <button onclick="openGetCustomerByMailModal()">Get Customer by Mail</button>
+    </div>
+
+    <!-- Add Customer Modal -->
+    <div id="addCustomerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddCustomerModal()">&times;</span>
+            <h2>Add a New Customer</h2>
+            <form id="add-customer-form">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="city">City:</label>
+                    <input type="text" id="city" name="city" required>
+                </div>
+                <div class="form-group">
+                    <label for="age">Age:</label>
+                    <input type="number" id="age" name="age" required>
+                </div>
+                <div class="form-group">
+                    <label for="mail">Email:</label>
+                    <input type="email" id="mail" name="mail" required>
+                </div>
+                <div class="form-group">
+                    <label for="gender">Gender:</label>
+                    <select id="gender" name="gender" required>
+                        <option value="" disabled selected>Select Gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="nonbinary">Non-binary</option>
+                        <option value="other">Other</option>
+                        <option value="prefer_not_to_say">Prefer not to say</option>
+                    </select>
+                </div>
+                <button type="submit">Add Customer</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Get Customers Modal -->
+    <div id="getCustomersModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeGetCustomersModal()">&times;</span>
+            <h2>Customers List</h2>
+            <table id="customers-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>City</th>
+                        <th>Age</th>
+                        <th>Email</th>
+                        <th>Gender</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Get Customer by ID Modal -->
+    <div id="getCustomerByIdModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeGetCustomerByIdModal()">&times;</span>
+            <button onclick="refreshCustomerById()">Refresh</button>
+            <h2>Get Customer by ID</h2>
+            <form id="get-customer-by-id-form">
+                <div class="form-group">
+                    <label for="customer_id">Customer ID:</label>
+                    <input type="number" id="customer_id" name="customer_id" required>
+                </div>
+                <button type="submit">Get Customer</button>
+            </form>
+            <table id="customer-by-id-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>City</th>
+                        <th>Age</th>
+                        <th>Email</th>
+                        <th>Gender</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Get Customer by Mail Modal -->
+    <div id="getCustomerByMailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeGetCustomerByMailModal()">&times;</span>
+            <button onclick="refreshCustomerByMail()">Refresh</button>
+            <h2>Get Customer by Mail</h2>
+            <form id="get-customer-by-mail-form">
+                <div class="form-group">
+                    <label for="customer_mail">Customer Mail:</label>
+                    <input type="email" id="customer_mail" name="customer_mail" required>
+                </div>
+                <button type="submit">Get Customer</button>
+            </form>
+            <table id="customer-by-mail-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>City</th>
+                        <th>Age</th>
+                        <th>Email</th>
+                        <th>Gender</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Update Customer Modal -->
+    <div id="updateCustomerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeUpdateCustomerModal()">&times;</span>
+            <h2>Update Customer</h2>
+            <form id="update-customer-form">
+                <div class="form-group">
+                    <label for="update-name">Name:</label>
+                    <input type="text" id="update-name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="update-city">City:</label>
+                    <input type="text" id="update-city" name="city" required>
+                </div>
+                <div class="form-group">
+                    <label for="update-age">Age:</label>
+                    <input type="number" id="update-age" name="age" required>
+                </div>
+                <div class="form-group">
+                    <label for="update-mail">Email:</label>
+                    <input type="email" id="update-mail" name="mail" required>
+                </div>
+                <div class="form-group">
+                    <label for="update-gender">Gender:</label>
+                    <select id="update-gender" name="gender" required>
+                        <option value="" disabled selected>Select Gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="nonbinary">Non-binary</option>
+                        <option value="other">Other</option>
+                        <option value="prefer_not_to_say">Prefer not to say</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="update-status">Status:</label>
+                    <select id="update-status" name="is_active" required>
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
+                <button type="submit">Update Customer</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const SERVER = 'http://127.0.0.1:5000';
+
+        document.getElementById('add-customer-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const customerData = {
+                name: document.getElementById('name').value,
+                city: document.getElementById('city').value,
+                age: document.getElementById('age').value,
+                mail: document.getElementById('mail').value,
+                gender: document.getElementById('gender').value,
+                password: 'default_password'
+            };
+
+            const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+
+            axios.post(`${SERVER}/add_customer`, customerData, {
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            })
+                .then(function (response) {
+                    alert('Customer added successfully!');
+                    closeAddCustomerModal();
+                })
+                .catch(function (error) {
+                    alert('Error adding customer: ' + (error.response ? error.response.data.error : error.message));
+                });
+        });
+
+        document.getElementById('get-customer-by-id-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const customerId = document.getElementById('customer_id').value;
+
+            const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+
+            axios.get(`${SERVER}/customers/${customerId}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            })
+                .then(function (response) {
+                    const customersTable = document.getElementById('customer-by-id-table').getElementsByTagName('tbody')[0];
+                    customersTable.innerHTML = '';
+                    const customer = response.data;
+                    const row = customersTable.insertRow();
+                    row.insertCell(0).innerText = customer.id;
+                    row.insertCell(1).innerText = customer.name;
+                    row.insertCell(2).innerText = customer.city;
+                    row.insertCell(3).innerText = customer.age;
+                    row.insertCell(4).innerText = customer.mail;
+                    row.insertCell(5).innerText = customer.gender;
+                    row.insertCell(6).innerText = customer.is_active ? 'Active' : 'Inactive';
+                    row.insertCell(7).innerHTML = `
+                        <button onclick="openUpdateCustomerModal(${customer.id}, '${customer.name}', '${customer.city}', ${customer.age}, '${customer.mail}', '${customer.gender}', ${customer.is_active})">Update</button>
+                        <button onclick="deleteCustomer(${customer.id})">Delete</button>
+                    `;
+                })
+                .catch(function (error) {
+                    alert('Error fetching customer: ' + (error.response ? error.response.data.error : error.message));
+                });
+        });
+
+        document.getElementById('get-customer-by-mail-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const customerMail = document.getElementById('customer_mail').value;
+
+            const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+
+            axios.get(`${SERVER}/customers`, {
+                params: { mail: customerMail },
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            })
+                .then(function (response) {
+                    const customersTable = document.getElementById('customer-by-mail-table').getElementsByTagName('tbody')[0];
+                    customersTable.innerHTML = '';
+                    response.data.forEach(function (customer) {
+                        if (customer.mail.toLowerCase() === customerMail.toLowerCase()) {
+                            const row = customersTable.insertRow();
+                            row.insertCell(0).innerText = customer.id;
+                            row.insertCell(1).innerText = customer.name;
+                            row.insertCell(2).innerText = customer.city;
+                            row.insertCell(3).innerText = customer.age;
+                            row.insertCell(4).innerText = customer.mail;
+                            row.insertCell(5).innerText = customer.gender;
+                            row.insertCell(6).innerText = customer.is_active ? 'Active' : 'Inactive';
+                            row.insertCell(7).innerHTML = `
+                                <button onclick="openUpdateCustomerModal(${customer.id}, '${customer.name}', '${customer.city}', ${customer.age}, '${customer.mail}', '${customer.gender}', ${customer.is_active})">Update</button>
+                                <button onclick="deleteCustomer(${customer.id})">Delete</button>
+                            `;
+                        }
+                    });
+                })
+                .catch(function (error) {
+                    alert('Error fetching customers: ' + (error.response ? error.response.data.error : error.message));
+                });
+        });
+
+        function getCustomers() {
+            const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+
+            axios.get(`${SERVER}/customers`, {
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            })
+                .then(function (response) {
+                    const customersTable = document.getElementById('customers-table').getElementsByTagName('tbody')[0];
+                    customersTable.innerHTML = '';
+                    response.data.forEach(function (customer) {
+                        const row = customersTable.insertRow();
+                        row.insertCell(0).innerText = customer.id;
+                        row.insertCell(1).innerText = customer.name;
+                        row.insertCell(2).innerText = customer.city;
+                        row.insertCell(3).innerText = customer.age;
+                        row.insertCell(4).innerText = customer.mail;
+                        row.insertCell(5).innerText = customer.gender;
+                        row.insertCell(6).innerText = customer.is_active ? 'Active' : 'Inactive';
+                        row.insertCell(7).innerHTML = `
+                            <button onclick="openUpdateCustomerModal(${customer.id}, '${customer.name}', '${customer.city}', ${customer.age}, '${customer.mail}', '${customer.gender}', ${customer.is_active})">Update</button>
+                            <button onclick="deleteCustomer(${customer.id})">Delete</button>
+                        `;
+                    });
+                })
+                .catch(function (error) {
+                    alert('Error fetching customers: ' + (error.response ? error.response.data.error : error.message));
+                });
+        }
+
+        function deleteCustomer(customerId) {
+            const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+
+            axios.delete(`${SERVER}/customers/${customerId}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            })
+                .then(response => {
+                    alert('Customer marked as inactive');
+                    getCustomers(); // Refresh customers list without closing the modal
+                })
+                .catch(error => {
+                    alert('Error marking customer as inactive: ' + (error.response ? error.response.data.error : error.message));
+                });
+        }
+
+        function openUpdateCustomerModal(id, name, city, age, mail, gender, isActive) {
+            document.getElementById('update-name').value = name;
+            document.getElementById('update-city').value = city;
+            document.getElementById('update-age').value = age;
+            document.getElementById('update-mail').value = mail;
+            document.getElementById('update-gender').value = gender;
+            document.getElementById('update-status').value = isActive ? 'true' : 'false';
+            document.getElementById('update-customer-form').setAttribute('data-id', id);
+            document.getElementById('updateCustomerModal').style.display = 'block';
+        }
+
+        document.getElementById('update-customer-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const customerId = document.getElementById('update-customer-form').getAttribute('data-id');
+            const updatedCustomer = {
+                name: document.getElementById('update-name').value,
+                city: document.getElementById('update-city').value,
+                age: document.getElementById('update-age').value,
+                mail: document.getElementById('update-mail').value,
+                gender: document.getElementById('update-gender').value,
+                is_active: document.getElementById('update-status').value === 'true'
+            };
+
+            const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+
+            axios.put(`${SERVER}/customers/${customerId}`, updatedCustomer, {
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            })
+                .then(function (response) {
+                    alert('Customer updated successfully!');
+                    closeUpdateCustomerModal();
+                    getCustomers(); // Refresh customers list without closing the modal
+                })
+                .catch(function (error) {
+                    alert('Error updating customer: ' + (error.response ? error.response.data.error : error.message));
+                });
+        });
+
+        function refreshCustomerById() {
+            document.getElementById('customer_id').value = '';
+            document.getElementById('customer-by-id-table').getElementsByTagName('tbody')[0].innerHTML = '';
+        }
+
+        function refreshCustomerByMail() {
+            document.getElementById('customer_mail').value = '';
+            document.getElementById('customer-by-mail-table').getElementsByTagName('tbody')[0].innerHTML = '';
+        }
+
+        function openAddCustomerModal() {
+            document.getElementById('addCustomerModal').style.display = 'block';
+        }
+
+        function closeAddCustomerModal() {
+            document.getElementById('addCustomerModal').style.display = 'none';
+        }
+
+        function openGetCustomersModal() {
+            document.getElementById('getCustomersModal').style.display = 'block';
+            getCustomers();
+        }
+
+        function closeGetCustomersModal() {
+            document.getElementById('getCustomersModal').style.display = 'none';
+        }
+
+        function openGetCustomerByIdModal() {
+            document.getElementById('getCustomerByIdModal').style.display = 'block';
+            refreshCustomerById();
+        }
+
+        function closeGetCustomerByIdModal() {
+            document.getElementById('getCustomerByIdModal').style.display = 'none';
+        }
+
+        function openGetCustomerByMailModal() {
+            document.getElementById('getCustomerByMailModal').style.display = 'block';
+            refreshCustomerByMail();
+        }
+
+        function closeGetCustomerByMailModal() {
+            document.getElementById('getCustomerByMailModal').style.display = 'none';
+        }
+
+        function closeUpdateCustomerModal() {
+            document.getElementById('updateCustomerModal').style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+            if (!accessToken) {
+                alert('Please login as admin to manage customers.');
+                window.location.href = 'home.html';
+            } else {
+                axios.get(`${SERVER}/protected`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                })
+                    .then(function (response) {
+                        // User is authorized
+                    })
+                    .catch(function (error) {
+                        alert('Access denied. Admins only.');
+                        window.location.href = 'home.html';
+                    });
+            }
+        });
+
+        function highlightAdminZone() {
+            const path = window.location.pathname;
+            const adminPages = ['/books.html', '/customers.html', '/loans.html'];
+            adminPages.forEach(page => {
+                if (path.includes(page)) {
+                    document.querySelector(`#nav-${page.split('.')[0].substring(1)}`).classList.add('active');
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', highlightAdminZone);
+    </script>
+</body>
+
+</html>

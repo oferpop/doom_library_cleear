@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Loans</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="home.html">Library</a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="home.html">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="books.html">Books</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="customers.html">Customers</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="loans.html">Loans</a>
+                </li>
+            </ul>
+            <!-- Add My Loans link to navbar -->
+            <ul class="navbar-nav ml-auto" id="user-info">
+                <li class="nav-item">
+                    <a class="nav-link" href="my_loans.html" id="my-loans-link">My Loans</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="logout-link">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="my-loans text-center my-4">
+            <h2>My Loans</h2>
+            <div class="row" id="loan-list"></div>
+        </div>
+    </div>
+
+    <script>
+        const SERVER = 'http://127.0.0.1:5000';
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            getMyLoans();
+        });
+
+        function getMyLoans() {
+            const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+            if (!accessToken) {
+                alert('Please login to view your loans');
+                return;
+            }
+
+            axios.get(`${SERVER}/my_loans`, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                }
+            })
+                .then(function (response) {
+                    const loanList = document.getElementById('loan-list');
+                    loanList.innerHTML = '';
+                    response.data.forEach(function (loan) {
+                        const loanCard = document.createElement('div');
+                        loanCard.classList.add('col-md-4', 'mb-4');
+                        loanCard.innerHTML = `
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">${loan.book_name}</h5>
+                                <p class="card-text">Loan Date: ${loan.loan_date}</p>
+                                <p class="card-text">Return Date: ${loan.return_date}</p>
+                            </div>
+                        </div>
+                    `;
+                        loanList.appendChild(loanCard);
+                    });
+                })
+                .catch(function (error) {
+                    alert('Error fetching loans: ' + error.message);
+                });
+        }
+    </script>
+</body>
+
+</html>
